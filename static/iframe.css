@@ -1,0 +1,30 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Ensure images and media don't exceed container width */
+img,
+video,
+iframe,
+embed,
+object {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Make tables scrollable if they exceed container width */
+table {
+    max-width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+/* Make code blocks scrollable instead of causing overflow */
+pre {
+    max-width: 100%;
+    overflow-x: auto;
+}

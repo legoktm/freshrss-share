@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Article</title>
+    <link rel="stylesheet" href="/share/static/style.css">
+    <script src="/share/static/tweetnacl-1.0.3.min.js"></script>
+    <script src="/share/static/submit.js"></script>
+</head>
+<body>
+    <div class="submit-container">
+        <h1>Generate Share Link</h1>
+        <form id="submitForm">
+            <div class="form-group">
+                <label for="articleId">Article ID:</label>
+                <input type="text" id="articleId" name="articleId" required placeholder="Enter article ID">
+            </div>
+            <div class="form-group">
+                <label for="secretKey">Secret Key (Base64):</label>
+                <input type="password" id="secretKey" name="secretKey" required placeholder="Enter your secret key">
+            </div>
+            <button type="submit">Generate Link</button>
+        </form>
+
+        <div id="result" class="result"></div>
+    </div>
+</body>
+</html>

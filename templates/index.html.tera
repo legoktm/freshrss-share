@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Shared article: {{ title }}</title>
+    <link rel="stylesheet" href="/share/static/style.css">
+    <script type="module" src="/share/static/script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="content-box">
+            <div class="header">
+                <h1><a href="{{ link }}">{{ title }}</a></h1>
+
+                <div class="meta"><strong>Source:</strong> <a href="{{ website }}">{{ feed_name }}</a></div>
+
+                {% if author %}
+                <div class="meta"><strong>Author:</strong> {{ author }}</div>
+                {% endif %}
+
+                {% if date %}
+                <div class="meta"><strong>Date:</strong> {{ date }}</div>
+                {% endif %}
+            </div>
+
+            <div class="notice">
+                I'm sharing this article from a media organization that I pay for in order to bypass a paywall, please don't share the link further.
+                The URL will expire in 7 days.
+            </div>
+
+            <div class="article-content">
+                <iframe id="content-frame" srcdoc="{{ content }}" frameborder="0" sandbox="allow-scripts"></iframe>
+            </div>
+        </div>
+
+</body>
+</html>
