@@ -1,7 +1,7 @@
 use crate::SecretKey;
 use anyhow::{Context, Result};
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
-use crypto_secretbox::{XSalsa20Poly1305, aead::Aead, cipher::KeyInit};
+use chacha20poly1305::{KeyInit, XChaCha20Poly1305, aead::Aead};
 use serde::Deserialize;
 use std::time;
 
@@ -24,9 +24,9 @@ pub(crate) fn decrypt_payload(encrypted: &str, secret_key: &SecretKey) -> Result
     let (nonce_bytes, ciphertext) = payload_bytes.split_at(24);
 
     // Create cipher with secret key
-    let cipher = XSalsa20Poly1305::new(&secret_key.0.into());
+    let cipher = XChaCha20Poly1305::new(&secret_key.0.into());
 
-    // Create nonce (24 bytes for XSalsa20Poly1305)
+    // Create nonce (24 bytes for XChaCha20Poly1305)
     let nonce = nonce_bytes.into();
 
     // Decrypt

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Article</title>
     <link rel="stylesheet" href="/share/static/style.css">
-    <script src="/share/static/tweetnacl-1.0.3.min.js"></script>
+    <script src="/share/static/noble-ciphers-2.0.1.min.js"></script>
     <script src="/share/static/submit.js"></script>
 </head>
 <body>

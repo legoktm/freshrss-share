@@ -25,12 +25,13 @@ function encryptAndSign(message, secretKeyBase64) {
     // Decode secret key (32 bytes)
     const secretKey = decodeBase64(secretKeyBase64);
 
-    // Generate random nonce (24 bytes for secretbox)
-    const nonce = nacl.randomBytes(24);
+    // Generate random nonce (24 bytes for XChaCha20Poly1305)
+    const nonce = nobleCiphers.utils.randomBytes(24);
 
-    // Encrypt with secretbox (XSalsa20-Poly1305)
+    // Encrypt with XChaCha20-Poly1305
     const messageBytes = encodeUTF8(message);
-    const encrypted = nacl.secretbox(messageBytes, nonce, secretKey);
+    const cipher = nobleCiphers.xchacha20poly1305(secretKey, nonce);
+    const encrypted = cipher.encrypt(messageBytes);
 
     // Combine: nonce + ciphertext
     const payload = new Uint8Array(nonce.length + encrypted.length);
