@@ -58,6 +58,13 @@ impl TryFrom<Row> for Entry {
     }
 }
 
+#[derive(Serialize)]
+struct IndexTemplate {
+    #[serde(flatten)]
+    entry: Entry,
+    expires_in_days: u64,
+}
+
 #[get("/?<p>")]
 async fn index(
     p: String,
@@ -65,10 +72,11 @@ async fn index(
     secret_key: &State<SecretKey>,
 ) -> Result<Template, Status> {
     // Decrypt the payload and get the ID
-    let id = crypto::decrypt_payload(&p, secret_key).map_err(|err| {
+    let payload = crypto::decrypt_payload(&p, secret_key).map_err(|err| {
         eprintln!("Decryption error: {err}");
         Status::Unauthorized
-    })? as i64;
+    })?;
+    let id = payload.id as i64;
 
     let mut conn = match pool.get_conn().await {
         Ok(conn) => conn,
@@ -106,7 +114,13 @@ WHERE kunal_entry.id = ?
                     return Err(Status::InternalServerError);
                 }
             };
-            Ok(Template::render("index", entry))
+            Ok(Template::render(
+                "index",
+                IndexTemplate {
+                    entry,
+                    expires_in_days: payload.expires_in_days,
+                },
+            ))
         }
         Ok(None) => Err(Status::NotFound),
         Err(err) => {

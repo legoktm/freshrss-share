@@ -27,7 +27,7 @@
 
             <div class="notice">
                 I'm sharing this article from a media organization that I pay for in order to bypass a paywall, please don't share the link further.
-                The URL will expire in 7 days.
+                The URL will expire in {{ expires_in_days }} day{{ expires_in_days | pluralize }}.
             </div>
 
             <div class="article-content">

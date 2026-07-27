@@ -12,7 +12,18 @@ struct EncryptedPayload {
     time: i64,
 }
 
-pub(crate) fn decrypt_payload(encrypted: &str, secret_key: &SecretKey) -> Result<u64> {
+/// A payload that was successfully decrypted and is not yet expired
+#[derive(Debug)]
+pub(crate) struct DecryptedPayload {
+    pub(crate) id: u64,
+    /// Whole days until the URL expires, rounded up
+    pub(crate) expires_in_days: u64,
+}
+
+const DAY: i64 = 24 * 60 * 60;
+const MAX_AGE: i64 = 7 * DAY;
+
+pub(crate) fn decrypt_payload(encrypted: &str, secret_key: &SecretKey) -> Result<DecryptedPayload> {
     // Decode base64
     let payload_bytes = BASE64
         .decode(encrypted)
@@ -38,20 +49,24 @@ pub(crate) fn decrypt_payload(encrypted: &str, secret_key: &SecretKey) -> Result
     let payload: EncryptedPayload =
         serde_json::from_slice(&plaintext).context("Failed to parse JSON payload")?;
 
-    // Validate timestamp (reject if more than 14 days old)
+    // Validate timestamp (reject if older than MAX_AGE)
     let current_time = time::SystemTime::now()
         .duration_since(time::UNIX_EPOCH)
         .unwrap()
         .as_secs() as i64;
 
     let age = current_time - payload.time;
-    const FOURTEEN_DAYS: i64 = 14 * 24 * 60 * 60; // 14 days in seconds
     anyhow::ensure!(
-        age <= FOURTEEN_DAYS,
+        age <= MAX_AGE,
         "Timestamp too old: {} seconds old (max {} days)",
         age,
-        14
+        MAX_AGE / DAY
     );
 
-    Ok(payload.id)
+    // Round up so a link with any time left says at least "1 day"
+    let remaining = (MAX_AGE - age).max(0) as u64;
+    Ok(DecryptedPayload {
+        id: payload.id,
+        expires_in_days: remaining.div_ceil(DAY as u64),
+    })
 }
