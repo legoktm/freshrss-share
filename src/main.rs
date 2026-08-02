@@ -173,7 +173,7 @@ async fn rocket() -> _ {
     let pool = Pool::new(
         OptsBuilder::default()
             .user(Some(user))
-            .pass(Some(password))
+            .pass(Some(password.trim()))
             .db_name(Some(database))
             .ip_or_hostname(hostname)
             .tcp_port(3306),
