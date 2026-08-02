@@ -148,9 +148,14 @@ fn root() -> Status {
 async fn rocket() -> _ {
     // Get database URL from environment variable
     let hostname = env::var("MARIADB_HOST").unwrap_or("localhost".to_string());
-    let user = env::var("MARIADB_USER").unwrap();
-    let password = fs::read_to_string(env::var("MARIADB_PASSWORD_FILE").unwrap()).unwrap();
-    let database = env::var("MARIADB_DATABASE").unwrap();
+    let user = env::var("MARIADB_USER").expect("MARIADB_USER environment variable must be set");
+    let password = fs::read_to_string(
+        env::var("MARIADB_PASSWORD_FILE")
+            .expect("MARIADB_PASSWORD_FILE environment variable must be set"),
+    )
+    .unwrap();
+    let database =
+        env::var("MARIADB_DATABASE").expect("MARIADB_DATABASE environment variable must be set");
 
     // Get secret key from environment variable
     let secret_key_b64 =
