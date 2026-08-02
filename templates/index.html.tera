@@ -34,6 +34,6 @@
                 <iframe id="content-frame" srcdoc="{{ content }}" frameborder="0" sandbox="allow-scripts"></iframe>
             </div>
         </div>
-
+    </div>
 </body>
 </html>
