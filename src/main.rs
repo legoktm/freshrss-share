@@ -5,6 +5,7 @@ use jiff::{Timestamp, fmt::strtime};
 use mysql_async::prelude::*;
 use mysql_async::{OptsBuilder, Pool, Row};
 use rocket::http::Status;
+use rocket::shield::{Referrer, Shield};
 use rocket::{State, fs::FileServer, get, launch, routes};
 use rocket_dyn_templates::Template;
 use serde::Serialize;
@@ -188,4 +189,5 @@ async fn rocket() -> _ {
         .mount("/static", FileServer::from("static"))
         .attach(Template::fairing())
         .attach(csp::CspFairing)
+        .attach(Shield::default().enable(Referrer::NoReferrer))
 }
