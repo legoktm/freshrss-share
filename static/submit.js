@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     form.addEventListener("submit", function (e) {
         e.preventDefault();
 
-        const articleId = articleIdInput.value;
+        const articleId = articleIdInput.valueAsNumber;
         const secretKey = secretKeyInput.value;
 
         // Save secret key to localStorage
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Create payload with current timestamp
             const currentTime = Math.floor(Date.now() / 1000);
             const payload = JSON.stringify({
-                id: parseInt(articleId, 10),
+                id: articleId,
                 t: currentTime,
             });
 
