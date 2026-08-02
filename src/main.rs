@@ -77,7 +77,6 @@ async fn index(
         eprintln!("Decryption error: {err}");
         Status::Unauthorized
     })?;
-    let id = payload.id as i64;
 
     let mut conn = match pool.get_conn().await {
         Ok(conn) => conn,
@@ -102,7 +101,7 @@ FROM kunal_entry
 JOIN kunal_feed ON kunal_entry.id_feed = kunal_feed.id
 WHERE kunal_entry.id = ?
 "#,
-            (id,),
+            (payload.id,),
         )
         .await;
 
