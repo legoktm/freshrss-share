@@ -1,6 +1,6 @@
 use crate::SecretKey;
 use anyhow::{Context, Result};
-use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
+use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chacha20poly1305::{KeyInit, XChaCha20Poly1305, aead::Aead};
 use serde::Deserialize;
 use std::time;
@@ -25,7 +25,7 @@ const MAX_AGE: i64 = 7 * DAY;
 
 pub(crate) fn decrypt_payload(encrypted: &str, secret_key: &SecretKey) -> Result<DecryptedPayload> {
     // Decode base64
-    let payload_bytes = BASE64
+    let payload_bytes = URL_SAFE_NO_PAD
         .decode(encrypted)
         .context("Failed to decode base64")?;
 

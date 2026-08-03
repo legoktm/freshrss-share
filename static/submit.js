@@ -8,12 +8,17 @@ function decodeBase64(base64) {
     return bytes;
 }
 
-function encodeBase64(bytes) {
+// URL-safe, unpadded base64, so the result is safe to drop straight into a
+// query string without any further escaping.
+function encodeBase64Url(bytes) {
     let binary = "";
     for (let i = 0; i < bytes.length; i++) {
         binary += String.fromCharCode(bytes[i]);
     }
-    return btoa(binary);
+    return btoa(binary)
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
 }
 
 function encodeUTF8(str) {
@@ -39,7 +44,7 @@ function encryptAndSign(message, secretKeyBase64) {
     payload.set(encrypted, nonce.length);
 
     // Return as base64
-    return encodeBase64(payload);
+    return encodeBase64Url(payload);
 }
 
 // Form handling for submit page
@@ -83,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Generate the share link
             const baseUrl = window.location.origin;
-            const shareUrl = `${baseUrl}/share/?p=${encodeURIComponent(encrypted)}`;
+            const shareUrl = `${baseUrl}/share/?p=${encrypted}`;
 
             // Display success with shareable link
             resultDiv.className = "result success";
