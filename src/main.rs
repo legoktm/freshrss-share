@@ -38,13 +38,19 @@ impl TryFrom<Row> for Entry {
             "%Y-%m-%d %H:%M:%S UTC",
             Timestamp::from_second(date_timestamp)?,
         )?;
+
+        // FreshRSS stores authors as a "; "-joined list with a leading ';'
+        // (see Entry::authors()), e.g. ";Alice; Bob".
         let author: String = row.take("author").context("Missing author field")?;
-        let author = if let Some(author) = author.strip_prefix(';') {
-            Some(author.to_string())
-        } else if author.is_empty() {
+        let authors: Vec<&str> = author
+            .split(';')
+            .map(str::trim)
+            .filter(|author| !author.is_empty())
+            .collect();
+        let author = if authors.is_empty() {
             None
         } else {
-            Some(author)
+            Some(authors.join(", "))
         };
 
         Ok(Entry {
