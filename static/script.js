@@ -1,15 +1,21 @@
-// Auto-resize iframe to fit content without scrolling
-const iframe = document.getElementById("content-frame");
+// Auto-resize the article iframe to fit its content without scrolling.
+//
+// The iframe is sandboxed into an opaque origin, so its messages arrive with an
+// origin of "null" and there is nothing useful to check there. Identify it by
+// source instead. This script runs before the iframe exists, so look it up
+// lazily -- by the time a message arrives it has been parsed.
 
-// Listen for height messages from iframe
+// Guard against a runaway document pinning the page open forever.
+const MAX_HEIGHT = 200000;
+
 window.addEventListener("message", (e) => {
-    if (e.data && e.data.type === "resize") {
-        iframe.style.height = e.data.height + "px";
+    const iframe = document.getElementById("content-frame");
+    if (!iframe || e.source !== iframe.contentWindow) {
+        return;
     }
-});
+    if (!e.data || e.data.type !== "resize" || !Number.isFinite(e.data.height)) {
+        return;
+    }
 
-// Append CSS link and resize script to srcdoc
-iframe.srcdoc =
-    `<link rel="stylesheet" href="/share/static/iframe.css">` +
-    iframe.srcdoc +
-    `<script src="/share/static/iframe.js"><\/script>`;
+    iframe.style.height = Math.min(Math.max(e.data.height, 0), MAX_HEIGHT) + "px";
+});

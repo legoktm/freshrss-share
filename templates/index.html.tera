@@ -6,7 +6,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Shared article: {{ title }}</title>
     <link rel="stylesheet" href="/share/static/style.css">
-    <script type="module" src="/share/static/script.js"></script>
+    <script src="/share/static/script.js"></script>
 </head>
 <body>
     <div class="container">
@@ -31,7 +31,8 @@
             </div>
 
             <div class="article-content">
-                <iframe id="content-frame" srcdoc="{{ content }}" frameborder="0" sandbox="allow-scripts"></iframe>
+                <iframe id="content-frame" title="Article content" sandbox="allow-scripts"
+                    srcdoc='<link rel="stylesheet" href="/share/static/iframe.css">{{ content }}<script src="/share/static/iframe.js"></script>'></iframe>
             </div>
         </div>
     </div>
