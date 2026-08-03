@@ -151,7 +151,7 @@ fn root() -> Status {
 
 #[launch]
 async fn rocket() -> _ {
-    // Get database URL from environment variable
+    // Get database info
     let hostname = env::var("MARIADB_HOST").unwrap_or("localhost".to_string());
     let user = env::var("MARIADB_USER").expect("MARIADB_USER environment variable must be set");
     let password_file = env::var("MARIADB_PASSWORD_FILE")
@@ -161,9 +161,11 @@ async fn rocket() -> _ {
     let database =
         env::var("MARIADB_DATABASE").expect("MARIADB_DATABASE environment variable must be set");
 
-    // Get secret key from environment variable
+    // Get secret key
+    let secret_key_file =
+        env::var("SECRET_KEY_FILE").expect("SECRET_KEY_FILE environment variable must be set");
     let secret_key_b64 =
-        env::var("SECRET_KEY").expect("SECRET_KEY environment variable must be set");
+        fs::read_to_string(&secret_key_file).expect("failed to read SECRET_KEY_FILE");
     let secret_key_bytes = BASE64
         .decode(secret_key_b64.trim())
         .expect("SECRET_KEY must be valid base64");
