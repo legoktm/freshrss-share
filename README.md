@@ -75,22 +75,6 @@ Replace `123` with any valid entry ID from your `kunal_entry` table.
 
 ## Configuration
 
-### Server Address and Port
-
-You can configure the server address and port using environment variables:
-
-```env
-ROCKET_ADDRESS=0.0.0.0
-ROCKET_PORT=8000
-```
-
-Or via Rocket.toml:
-```toml
-[default]
-address = "0.0.0.0"
-port = 8000
-```
-
 ### Database Connection
 
 The `DATABASE_URL` supports various formats:
@@ -169,7 +153,6 @@ ROCKET_PORT=8080
 ```
 freshrss-share/
 ├── Cargo.toml          # Rust dependencies
-├── Rocket.toml         # Rocket configuration
 ├── .env                # Environment configuration (not in git)
 ├── .env.example        # Example configuration
 ├── README.md           # This file

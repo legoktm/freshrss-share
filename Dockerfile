@@ -14,7 +14,6 @@ WORKDIR /app
 COPY --from=builder /app/target/release/freshrss-share /app/freshrss-share
 COPY templates /app/templates
 COPY static /app/static
-COPY Rocket.toml /app/Rocket.toml
 
 RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app
@@ -22,5 +21,7 @@ RUN useradd -m -u 1000 appuser && \
 USER appuser
 
 EXPOSE 8000
+ENV ROCKET_ADDRESS=0.0.0.0
+ENV ROCKET_PORT=8000
 
 CMD ["/app/freshrss-share"]
