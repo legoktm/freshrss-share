@@ -1,7 +1,7 @@
 use crate::SecretKey;
 use anyhow::{Context, Result};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
-use chacha20poly1305::{KeyInit, XChaCha20Poly1305, aead::Aead};
+use chacha20poly1305::{KeyInit, XChaCha20Poly1305, XNonce, aead::Aead};
 use serde::Deserialize;
 use std::time;
 
@@ -38,11 +38,11 @@ pub(crate) fn decrypt_payload(encrypted: &str, secret_key: &SecretKey) -> Result
     let cipher = XChaCha20Poly1305::new(&secret_key.0.into());
 
     // Create nonce (24 bytes for XChaCha20Poly1305)
-    let nonce = nonce_bytes.into();
+    let nonce = XNonce::try_from(nonce_bytes).context("Invalid nonce")?;
 
     // Decrypt
     let plaintext = cipher
-        .decrypt(nonce, ciphertext)
+        .decrypt(&nonce, ciphertext)
         .context("Decryption failed")?;
 
     // Parse JSON
