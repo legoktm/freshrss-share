@@ -16,6 +16,9 @@ mod csp;
 
 struct SecretKey([u8; 32]);
 
+/// FreshRSS prefixes its tables with the username
+struct TablePrefix(String);
+
 #[derive(Debug, Serialize)]
 struct Entry {
     title: String,
@@ -77,7 +80,9 @@ async fn index(
     p: String,
     pool: &State<Pool>,
     secret_key: &State<SecretKey>,
+    table_prefix: &State<TablePrefix>,
 ) -> Result<Template, Status> {
+    let prefix = &table_prefix.0;
     // Decrypt the payload and get the ID
     let payload = crypto::decrypt_payload(&p, secret_key).map_err(|err| {
         eprintln!("Decryption error: {err}");
@@ -92,24 +97,23 @@ async fn index(
         }
     };
 
-    let result: Result<Option<Row>, _> = conn
-        .exec_first(
-            r#"
+    let query = format!(
+        r#"
 SELECT
     title,
     author,
     UNCOMPRESS(content_bin) AS content,
     link,
     date,
-    kunal_feed.name as feed_name,
-    kunal_feed.website as website
-FROM kunal_entry
-JOIN kunal_feed ON kunal_entry.id_feed = kunal_feed.id
-WHERE kunal_entry.id = ?
-"#,
-            (payload.id,),
-        )
-        .await;
+    {prefix}_feed.name as feed_name,
+    {prefix}_feed.website as website
+FROM {prefix}_entry
+JOIN {prefix}_feed ON {prefix}_entry.id_feed = {prefix}_feed.id
+WHERE {prefix}_entry.id = ?
+"#
+    );
+
+    let result: Result<Option<Row>, _> = conn.exec_first(query, (payload.id,)).await;
 
     match result {
         Ok(Some(row)) => {
@@ -161,6 +165,17 @@ async fn rocket() -> _ {
     let database =
         env::var("MARIADB_DATABASE").expect("MARIADB_DATABASE environment variable must be set");
 
+    // FreshRSS table prefix (usually your FreshRSS username)
+    let table_prefix = env::var("FRESHRSS_TABLE_PREFIX")
+        .expect("FRESHRSS_TABLE_PREFIX environment variable must be set");
+    if table_prefix.is_empty()
+        || !table_prefix
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '_')
+    {
+        panic!("FRESHRSS_TABLE_PREFIX must contain only ASCII letters, digits, and underscores");
+    }
+
     // Get secret key
     let secret_key_file =
         env::var("SECRET_KEY_FILE").expect("SECRET_KEY_FILE environment variable must be set");
@@ -196,6 +211,7 @@ async fn rocket() -> _ {
     rocket::build()
         .manage(pool)
         .manage(secret_key)
+        .manage(TablePrefix(table_prefix))
         .mount("/", routes![index, root, submit])
         .mount("/static", FileServer::from("static"))
         .attach(Template::fairing())
