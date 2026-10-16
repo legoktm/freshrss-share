@@ -7,7 +7,7 @@ use mysql_async::{OptsBuilder, Pool, Row};
 use rocket::http::Status;
 use rocket::shield::{Referrer, Shield};
 use rocket::{State, fs::FileServer, get, launch, routes};
-use rocket_dyn_templates::Template;
+use rocket_tera::Template;
 use serde::Serialize;
 use std::{env, fs};
 
@@ -125,7 +125,7 @@ WHERE {prefix}_entry.id = ?
                 }
             };
             Ok(Template::render(
-                "index",
+                "index.html",
                 IndexTemplate {
                     entry,
                     expires_in_days: payload.expires_in_days,
@@ -145,7 +145,7 @@ struct SubmitTemplate {}
 
 #[get("/submit")]
 async fn submit() -> Template {
-    Template::render("submit", SubmitTemplate {})
+    Template::render("submit.html", SubmitTemplate {})
 }
 
 #[get("/")]
