@@ -1,0 +1,32 @@
+name: Build and publish container
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/legoktm/freshrss-share
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Log in to GHCR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$ACTOR" --password-stdin
+
+      - name: Build and push
+        run: |
+          docker build \
+            --label org.opencontainers.image.source=https://github.com/legoktm/freshrss-share \
+            --label org.opencontainers.image.revision=${{ github.sha }} \
+            -t "$IMAGE:latest" .
+          docker push "$IMAGE:latest"
