@@ -218,3 +218,28 @@ async fn rocket() -> _ {
         .attach(csp::CspFairing)
         .attach(Shield::default().enable(Referrer::NoReferrer))
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn content_is_escaped_for_srcdoc_attribute() {
+        let mut tera = rocket_tera::tera::Tera::default();
+        tera.autoescape_on(vec![".html"]);
+        tera.add_raw_template("index.html", include_str!("../templates/index.html"))
+            .unwrap();
+
+        let mut context = rocket_tera::tera::Context::new();
+        context.insert("title", "Title");
+        context.insert("link", "https://example.com/article");
+        context.insert("website", "https://example.com");
+        context.insert("feed_name", "Example");
+        context.insert("author", "Author");
+        context.insert("date", "2024-01-01");
+        context.insert("expires_in_days", &1);
+        context.insert("content", "<p>It's a test</p>");
+
+        let rendered = tera.render("index.html", &context).unwrap();
+        assert!(rendered.contains("&#39;") || rendered.contains("&#x27;"));
+        assert!(!rendered.contains("It's a test"));
+    }
+}
