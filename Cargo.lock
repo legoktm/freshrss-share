@@ -1215,6 +1215,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-util",
+ "tracing",
  "twox-hash",
  "url",
 ]
